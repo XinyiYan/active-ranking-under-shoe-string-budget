@@ -11,14 +11,14 @@ python PARWiS.py \
        --n 25 \
        --experiments 10 \
        --iterations 100 \
-       --precomputed \
-       --budget 25
+       --budget 25 \
+       --precomputed
 ```
 
 ### Separation vs Recovery experiments
 For the algorithms **PARWiS** and **SELECT**, we performed experiments when the topper had score **x** and the rest has **100-x**. Say you want to reproduce the experiments for **SELECT**, you can use the following command:
 ```shell
-python PARWiS.py \
+python SELECT.py \
        --n 50 \
        --experiments 10 \
        --iterations 100 \
