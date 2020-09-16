@@ -165,10 +165,10 @@ def get_args():
     """
     parser = argparse.ArgumentParser(allow_abbrev=False)
 
-    parser.add_argument("--n", default=10, type=int, help="number of items in the dataset")
-    parser.add_argument("--experiments", default=10, type=int, help="number of experiments to average the results over")
-    parser.add_argument("--iterations", default=100, type=int, help="number of iterations the algorithm runs in a single experiment")
-    parser.add_argument("--budget", default=10, type=int, help="number of times N the max budget is to be set")
+    parser.add_argument("--n", default=10, type=int, help="number of items N in the dataset")
+    parser.add_argument("--experiments", default=10, type=int, help="number of experiments to average the metrics over")
+    parser.add_argument("--iterations", default=100, type=int, help="number of iterations the algorithm runs for in a single experiment")
+    parser.add_argument("--budget", default=10, type=int, help="the multiple of N you want your max budget to be, metrics will be evaluated in steps of N")
     parser.add_argument("--precomputed", action='store_true', help="use precomputed score vectors for the synthetic case")
     parser.add_argument("--dataset", default=None, help="real-world data you want to evaluate: sushi-A, sushi-B, jester, netflix, movielens")
     parser.add_argument("--toppers", default=None, nargs='+', type=int, help="array of x when the topper has score x and the rest 100-x")
