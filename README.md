@@ -7,23 +7,13 @@ For all the simulation experiments, we resort to using a randomly generated grou
 ### Reproducing Numbers
 Say you want to reproduce the numbers corresponding to **n = 25** for *Synthetic-Data* by the **PARWiS** Algorithm, please use the following command:
 ```shell
-python PARWiS.py \
-       --n 25 \
-       --experiments 10 \
-       --iterations 100 \
-       --budget 25 \
-       --precomputed
+python PARWiS.py --n 25 --experiments 10 --iterations 100 --budget 25 --precomputed
 ```
 
 ### Separation vs Recovery experiments
 For the algorithms **PARWiS** and **SELECT**, we performed experiments when the topper had score **x** and the rest has **100-x**. Say you want to reproduce the experiments for **SELECT**, you can use the following command:
 ```shell
-python SELECT.py \
-       --n 50 \
-       --experiments 10 \
-       --iterations 100 \
-       --budget 3 \
-       --toppers 55 60 65 70 75 80
+python SELECT.py --n 50 --experiments 10 --iterations 100 --budget 3 --toppers 55 60 65 70 75 80
 ```
 
 ## Experiments on Real World Dataset
@@ -36,11 +26,7 @@ We have evaluated our algorithm on five real-world datasets.
 ### Reproducing Numbers
 Say you want to reproduce the numbers corresponding to **Jester** Dataset by the **PARWiS** Algorithm, please use the following command:
 ```shell
-python PARWiS.py \
-       --experiments 10 \
-       --iterations 100 \
-       --dataset "jester" \
-       --budget 7
+python PARWiS.py --experiments 10 --iterations 100 --budget 7 --dataset "jester"
 ```
 
 ## Datasets
