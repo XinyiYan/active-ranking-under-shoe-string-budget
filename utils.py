@@ -172,6 +172,9 @@ def get_args():
     parser.add_argument("--precomputed", action='store_true', help="use precomputed score vectors for the synthetic case")
     parser.add_argument("--dataset", default=None, help="real-world data you want to evaluate: sushi-A, sushi-B, jester, netflix, movielens")
     parser.add_argument("--toppers", default=None, nargs='+', type=int, help="array of x when the topper has score x and the rest 100-x")
+    parser.add_argument("--compute", default="exact", help="The compute method to evaluate pairs for active picking")
+    parser.add_argument("--name", default="", help="The log file name to save the csv data")
+    parser.add_argument("--save_dir", default=".", help="The save directory of the log file")
 
     args, _ = parser.parse_known_args()
     args = parser.parse_args()
