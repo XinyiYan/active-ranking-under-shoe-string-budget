@@ -182,53 +182,53 @@ def get_ranking(n, parameters):
     return ranking, ranks, top
 
 def power_iter(n, comp_matrix, pair, phi):
-	"""
-	L2-norm after one Power Iteration of the Markov Chain for a pair (i,j).
-	"""
-	i = pair[0]
-	j = pair[1]
-	x = comp_matrix[j][i]+comp_matrix[i][j] 
-	e = 1
-	m = (comp_matrix[j][i]+e)*np.sqrt(phi[i]**2 + phi[j]**2)/((x+2*e)*(x+1+2*e))
-	return m
+    """
+    L2-norm after one Power Iteration of the Markov Chain for a pair (i,j).
+    """
+    i = pair[0]
+    j = pair[1]
+    x = comp_matrix[j][i]+comp_matrix[i][j] 
+    e = 1
+    m = (comp_matrix[j][i]+e)*np.sqrt(phi[i]**2 + phi[j]**2)/((x+2*e)*(x+1+2*e))
+    return m
 
 def least_squares(n, comp_matrix, pair):
-	"""
-	Least-squares objective one-step minimization. 
-	"""
-	i = pair[0]
-	j = pair[1]
-	x = comp_matrix[i][j]
-	e = 1
-	return np.log((x+1+e)/(x+e))
+    """
+    Least-squares objective one-step minimization. 
+    """
+    i = pair[0]
+    j = pair[1]
+    x = comp_matrix[i][j]
+    e = 1
+    return np.log((x+1+e)/(x+e))
 
 def IMC_prune(n, comp_matrix, pair, phi, MC, MC_sq, metric="L2"):
-	"""
-	Incremental Markov Chain pruning for one pair to compute the metric for pick_a_pair function.
-	In the pair (i,j), increment chain such that i wins over j.
-	"""
-	i = pair[0]
-	j = pair[1]
-	if((comp_matrix[j][i]+comp_matrix[i][j]) == 0):
-		delta_i = - ((comp_matrix[j][i])/(comp_matrix[j][i]+comp_matrix[i][j]+1))/n
-	else:
-		delta_i = - ((comp_matrix[j][i])/(comp_matrix[j][i]+comp_matrix[i][j]+1))/n + ((comp_matrix[j][i])/(comp_matrix[j][i]+comp_matrix[i][j]))/n
-	k = phi[i]/(1+(-delta_i*MC[i,i])+(delta_i*MC[j,i]))
-	error = k * ((-delta_i*MC[i]) + (delta_i*MC[j]))
-	pi = phi - error
-	pi = normalize(pi)
-	gamma = np.dot(error, MC[:, i])/phi[i]
-	mid_term = k*((-delta_i*MC_sq[i]) + (delta_i*MC_sq[j])) - gamma*error
-	new_MC_i = MC[i] + mid_term - MC[i,i]*error/phi[i]
-	new_MC_j = MC[j] + mid_term - MC[j,i]*error/phi[i]
-	if((comp_matrix[j][i]+comp_matrix[i][j]) == 0):
-		delta_j = - ((comp_matrix[i][j]+1)/(comp_matrix[j][i]+comp_matrix[i][j]+1))/n
-	else:
-		delta_j = - ((comp_matrix[i][j]+1)/(comp_matrix[j][i]+comp_matrix[i][j]+1))/n + ((comp_matrix[i][j])/(comp_matrix[j][i]+comp_matrix[i][j]))/n
-	new_error = (pi[j]/(1+(-delta_j*new_MC_j[j])+(delta_j*new_MC_i[j]))) * ((-delta_j*new_MC_j) + (delta_j*new_MC_i))
-	new_pi = pi - new_error
-	new_pi = normalize(new_pi)
-	return np.linalg.norm(new_pi-phi)
+    """
+    Incremental Markov Chain pruning for one pair to compute the metric for pick_a_pair function.
+    In the pair (i,j), increment chain such that i wins over j.
+    """
+    i = pair[0]
+    j = pair[1]
+    if((comp_matrix[j][i]+comp_matrix[i][j]) == 0):
+        delta_i = - ((comp_matrix[j][i])/(comp_matrix[j][i]+comp_matrix[i][j]+1))/n
+    else:
+        delta_i = - ((comp_matrix[j][i])/(comp_matrix[j][i]+comp_matrix[i][j]+1))/n + ((comp_matrix[j][i])/(comp_matrix[j][i]+comp_matrix[i][j]))/n
+    k = phi[i]/(1+(-delta_i*MC[i,i])+(delta_i*MC[j,i]))
+    error = k * ((-delta_i*MC[i]) + (delta_i*MC[j]))
+    pi = phi - error
+    pi = normalize(pi)
+    gamma = np.dot(error, MC[:, i])/phi[i]
+    mid_term = k*((-delta_i*MC_sq[i]) + (delta_i*MC_sq[j])) - gamma*error
+    new_MC_i = MC[i] + mid_term - MC[i,i]*error/phi[i]
+    new_MC_j = MC[j] + mid_term - MC[j,i]*error/phi[i]
+    if((comp_matrix[j][i]+comp_matrix[i][j]) == 0):
+        delta_j = - ((comp_matrix[i][j]+1)/(comp_matrix[j][i]+comp_matrix[i][j]+1))/n
+    else:
+        delta_j = - ((comp_matrix[i][j]+1)/(comp_matrix[j][i]+comp_matrix[i][j]+1))/n + ((comp_matrix[i][j])/(comp_matrix[j][i]+comp_matrix[i][j]))/n
+    new_error = (pi[j]/(1+(-delta_j*new_MC_j[j])+(delta_j*new_MC_i[j]))) * ((-delta_j*new_MC_j) + (delta_j*new_MC_i))
+    new_pi = pi - new_error
+    new_pi = normalize(new_pi)
+    return np.linalg.norm(new_pi-phi)
 
 def IMC_update(n, comp_matrix, pair, inc, phi, chain, MC, est, metric="L2"):
     """
@@ -307,66 +307,74 @@ def pick_a_pair_old(n, comp_matrix, estimates, top, chain, A_hash, ranking, k=1,
     return pair
 
 def pick_a_pair(n, comp_matrix, estimates, chain, A_hash, ranking, ranks, top, compute="exact", method="weighted"):
-	"""
+    """
     Pick the next pair to be compared by evaluating the disruption score for the set of possible pairs.
     We only choose to compare the current topper with one of the rest to form a pair and reduce computation cost.
     """
-	pair = np.random.choice(a = np.arange(1,n+1), size=2, replace=False)
-	# Randomly select a pair to compare.
-	if(compute == "random"):
-		# print(compute, top, pair, ranks)
-		return pair
-	# One iteration towards optimizing the log likelihood score - pick the top two items and compare.
-	if(compute == "loglike"):
-		toppers = np.where(ranks == ranks.min())[0] + 1
-		toppers = toppers[toppers != top]
-		if(len(toppers) == 0):
-			min2 = np.min(ranks[ranks > ranks.min()])
-			toppers2 = np.where(ranks == min2)[0] + 1
-			top2 = np.random.choice(toppers2)
-			pair = (top, top2)
-			# print(compute, top, pair, ranks)
-			return pair
-		else:
-			top2 = np.random.choice(toppers)
-			pair = (top, top2)
-			# print(compute, top, pair, ranks)
-			return pair
-	cand_pairs = []
-	max_array = []
-	A_hash_sq = np.dot(A_hash, A_hash)
-	for p in range(1, n+1):
-		if(not (p == top)):
-		# for q in range(p+1, n+1):
-		# 	i = q
-			i = top
-			j = p
-			# Exact update of the Markov Chain.
-			if(compute == "exact"):
-				m1 = IMC_prune(n, comp_matrix, (i, j), estimates, A_hash, A_hash_sq)
-				m2 = IMC_prune(n, comp_matrix, (j, i), estimates, A_hash, A_hash_sq)
-			# One power iteration of the Markov Chain.
-			elif(compute == "power"):
-				m1 = power_iter(n, comp_matrix, (i, j), estimates)
-				m2 = power_iter(n, comp_matrix, (j, i), estimates)
-			# One iteration towards optimizing the least squares objective.
-			elif(compute == "squares"):
-				m1 = least_squares(n, comp_matrix, (i, j))
-				m2 = least_squares(n, comp_matrix, (j, i))
-			# Update Max
-			if(method == "average"):
-			    # Average
-			    m = m1+m2
-			elif(method == "weighted"):
-			    # Weighted
-			    m = (estimates[i]*m1 + estimates[j]*m2)/(estimates[i]+estimates[j])
-			cand_pairs.append((i,j))
-			max_array.append(m)
-	candidates = np.where(max_array == np.max(max_array))[0]
-	idx = np.random.choice(candidates)
-	pair = cand_pairs[idx]
-	# print(compute, top, pair, ranks)
-	return pair
+    pair = np.random.choice(a = np.arange(1,n+1), size=2, replace=False)
+    # Randomly select a pair to compare.
+    if(compute == "random"):
+        # print(compute, top, pair, ranks)
+        return pair
+    # Randomly select an item to compare with the top.
+    if(compute == "random-top"):
+        items = np.arange(1, n+1)
+        possibles = np.delete(items, top-1)
+        candidate = np.random.choice(possibles)
+        pair = (top, candidate)
+        # print(compute, top, pair, ranks)
+        return pair
+    # One iteration towards optimizing the log likelihood score - pick the top two items and compare.
+    if(compute == "loglike"):
+        toppers = np.where(ranks == ranks.min())[0] + 1
+        toppers = toppers[toppers != top]
+        if(len(toppers) == 0):
+            min2 = np.min(ranks[ranks > ranks.min()])
+            toppers2 = np.where(ranks == min2)[0] + 1
+            top2 = np.random.choice(toppers2)
+            pair = (top, top2)
+            # print(compute, top, pair, ranks)
+            return pair
+        else:
+            top2 = np.random.choice(toppers)
+            pair = (top, top2)
+            # print(compute, top, pair, ranks)
+            return pair
+    cand_pairs = []
+    max_array = []
+    A_hash_sq = np.dot(A_hash, A_hash)
+    for p in range(1, n+1):
+        if(not (p == top)):
+        # for q in range(p+1, n+1):
+        # 	i = q
+            i = top
+            j = p
+            # Exact update of the Markov Chain.
+            if(compute == "exact"):
+                m1 = IMC_prune(n, comp_matrix, (i, j), estimates, A_hash, A_hash_sq)
+                m2 = IMC_prune(n, comp_matrix, (j, i), estimates, A_hash, A_hash_sq)
+            # One power iteration of the Markov Chain.
+            elif(compute == "power"):
+                m1 = power_iter(n, comp_matrix, (i, j), estimates)
+                m2 = power_iter(n, comp_matrix, (j, i), estimates)
+            # One iteration towards optimizing the least squares objective.
+            elif(compute == "squares"):
+                m1 = least_squares(n, comp_matrix, (i, j))
+                m2 = least_squares(n, comp_matrix, (j, i))
+            # Update Max
+            if(method == "average"):
+                # Average
+                m = m1+m2
+            elif(method == "weighted"):
+                # Weighted
+                m = (estimates[i]*m1 + estimates[j]*m2)/(estimates[i]+estimates[j])
+            cand_pairs.append((i,j))
+            max_array.append(m)
+    candidates = np.where(max_array == np.max(max_array))[0]
+    idx = np.random.choice(candidates)
+    pair = cand_pairs[idx]
+    # print(compute, top, pair, ranks)
+    return pair
 
 def random_pick(n, top):
     """
@@ -501,7 +509,7 @@ if __name__ == "__main__":
                                                                                        precomputed=args.precomputed, dataset=args.dataset,
                                                                                        compute=args.compute)
         
-        exp = f"{args.dataset}_N_{N}"+args.name
+        exp = f"{args.dataset}_N_{N}" + "_" + args.name
 
         log_data = {'Budget' : [N*b for b in range(1, args.budget+1)],
         			'Recovery_Counts' : np.mean(RC, axis=1),
@@ -516,7 +524,8 @@ if __name__ == "__main__":
         df = pd.DataFrame(log_data, columns=['Budget', 'Recovery_Counts', 'RC_std', 'Reported_Rank_of_True_Winner(PF)', 
         									 'PF_std', 'True_Rank_of_Reported_Winner(CT)', 'CT_std', 'Experiment'])
 
-        df.to_csv(os.path.join(args.save_dir, exp+".csv"), index=False)
+        if(not args.no_save):
+            df.to_csv(os.path.join(args.save_dir, exp+".csv"), index=False)
 
         print_metric("Recovery_Counts", RC)
         print_metric("Reported_Rank_of_True_Winner", PF)
@@ -537,7 +546,7 @@ if __name__ == "__main__":
 
         Ranking, Ranks, Data, Scores, True_top, Estimates, RC, PF = run_simulation_custom(N, Toppers, Experiments, Iterations, Budget, RC, PF, compute=args.compute)
 
-        exp = f"toppers_N_{N}"+args.name
+        exp = f"toppers_N_{N}" + "_" + args.name
 
         log_data = {'Budget' : [N*b for b in range(1, args.budget+1)]*len(Toppers),
         			'Recovery_Counts' : np.mean(RC, axis=2).reshape(args.budget*len(Toppers)),
@@ -550,7 +559,8 @@ if __name__ == "__main__":
         df = pd.DataFrame(log_data, columns=['Budget', 'Recovery_Counts', 'RC_std', 'Reported_Rank_of_True_Winner(PF)', 
         									 'PF_std', 'Experiment'])
 
-        df.to_csv(os.path.join(args.save_dir, exp+".csv"), index=False)
+        if(not args.no_save):
+            df.to_csv(os.path.join(args.save_dir, exp+".csv"), index=False)
 
         print_metric("Recovery_Counts", RC, Toppers)
         print_metric("Reported_Rank_of_True_Winner", PF, Toppers)
@@ -573,7 +583,7 @@ if __name__ == "__main__":
                                                                                        precomputed=args.precomputed, dataset=args.dataset,
                                                                                        compute=args.compute)
 
-        exp = f"synthetic_N_{N}"+args.name
+        exp = f"synthetic_N_{N}" + "_" + args.name
 
         log_data = {'Budget' : [N*b for b in range(1, args.budget+1)],
         			'Recovery_Counts' : np.mean(RC, axis=1),
@@ -588,7 +598,8 @@ if __name__ == "__main__":
         df = pd.DataFrame(log_data, columns=['Budget', 'Recovery_Counts', 'RC_std', 'Reported_Rank_of_True_Winner(PF)', 
         									 'PF_std', 'True_Rank_of_Reported_Winner(CT)', 'CT_std', 'Experiment'])
 
-        df.to_csv(os.path.join(args.save_dir, exp+".csv"), index=False)
+        if(not args.no_save):
+            df.to_csv(os.path.join(args.save_dir, exp+".csv"), index=False)
 
         print_metric("Recovery_Counts", RC)
         print_metric("Reported_Rank_of_True_Winner", PF)

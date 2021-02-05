@@ -175,6 +175,7 @@ def get_args():
     parser.add_argument("--compute", default="exact", help="The compute method to evaluate pairs for active picking")
     parser.add_argument("--name", default="", help="The log file name to save the csv data")
     parser.add_argument("--save_dir", default=".", help="The save directory of the log file")
+    parser.add_argument("--no_save", action="store_true", help="Do not save log file")
 
     args, _ = parser.parse_known_args()
     args = parser.parse_args()
