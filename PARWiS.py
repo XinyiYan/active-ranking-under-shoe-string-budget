@@ -189,7 +189,8 @@ def power_iter(n, comp_matrix, pair, phi):
     j = pair[1]
     x = comp_matrix[j][i]+comp_matrix[i][j] 
     e = 1
-    m = (comp_matrix[j][i]+e)*np.sqrt(phi[i]**2 + phi[j]**2)/((x+2*e)*(x+1+2*e))
+    # m = (comp_matrix[j][i]+e)*np.sqrt(phi[i]**2 + phi[j]**2)/((x+2*e)*(x+1+2*e))
+    m = (comp_matrix[j][i]+e)*(phi[i]+phi[j])/((x+2*e)*(x+1+2*e))
     return m
 
 def least_squares(n, comp_matrix, pair):
