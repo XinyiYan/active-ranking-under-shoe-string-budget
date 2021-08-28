@@ -1,5 +1,5 @@
-python >= 3.6
-numpy >= 1.17.0
-pandas >= 1.1.1
-choix >= 0.3.3
-tqdm >= 4.48.2
+python>=3.6
+numpy>=1.17.0
+pandas>=1.1.1
+choix>=0.3.3
+tqdm>=4.48.2
