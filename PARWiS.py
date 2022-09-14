@@ -446,11 +446,10 @@ def run_simulation(n, experiments, iterations, budget, recovery_count, performan
 
     scores, true_top = init(n, precomputed=precomputed,
                             dataset=dataset, pref_matrix=pref_matrix)
-    print("scores.shape:", scores.shape, "true_top:", true_top)
-    
     # true_ranks = get_ranks(scores)
 
     for exp in tqdm.tqdm(range(experiments), desc="experiments"):
+        correctPred = 0
         for itr in tqdm.tqdm(range(iterations), desc="iterations"):
             data, initial, comp_matrix, chain, A_hash, estimates = reset(n, scores)
             ranking, ranks, top = get_ranking(n, estimates)
@@ -478,10 +477,15 @@ def run_simulation(n, experiments, iterations, budget, recovery_count, performan
                 initial = 0
                 # Update the metrics
                 # if(true_top == (top-1)):
-                if((top-1) in true_top):
-                    recovery_count[batch][exp] += 1
+                # if((top-1) in true_top):
+                    # recovery_count[batch][exp] += 1
                 # performance_factor[batch][exp] += ranks[true_top]
                 # current_top[batch][exp] += true_ranks[top-1]
+
+            if((top-1) in true_top):
+                correctPred += 1
+
+    print(f"correctPred:{correctPred}, out of {iterations} iterations.")
 
     # performance_factor /= iterations
     # current_top /= iterations
@@ -594,24 +598,24 @@ if __name__ == "__main__":
                                                                                        precomputed=args.precomputed, dataset=args.dataset,
                                                                                        compute=args.compute, pref_matrix=args.pref_matrix)
 
-        exp = f"synthetic_N_{N}" + "_" + args.name
+        # exp = f"synthetic_N_{N}" + "_" + args.name
 
-        log_data = {'Budget' : [N*b for b in range(1, args.budget+1)],
-        			'Recovery_Counts' : np.mean(RC, axis=1),
-        			'RC_std' : np.sqrt(np.var(RC, axis=1)),
-        			'Reported_Rank_of_True_Winner(PF)' : np.mean(PF, axis=1),
-        			'PF_std' : np.sqrt(np.var(PF, axis=1)),
-        			'True_Rank_of_Reported_Winner(CT)' : np.mean(CT, axis=1),
-        			'CT_std' : np.sqrt(np.var(CT, axis=1)),
-        			'Experiment' : [exp for b in range(args.budget)]
-        			}
+        # log_data = {'Budget' : [N*b for b in range(1, args.budget+1)],
+        # 			'Recovery_Counts' : np.mean(RC, axis=1),
+        # 			'RC_std' : np.sqrt(np.var(RC, axis=1)),
+        # 			'Reported_Rank_of_True_Winner(PF)' : np.mean(PF, axis=1),
+        # 			'PF_std' : np.sqrt(np.var(PF, axis=1)),
+        # 			'True_Rank_of_Reported_Winner(CT)' : np.mean(CT, axis=1),
+        # 			'CT_std' : np.sqrt(np.var(CT, axis=1)),
+        # 			'Experiment' : [exp for b in range(args.budget)]
+        # 			}
 
-        df = pd.DataFrame(log_data, columns=['Budget', 'Recovery_Counts', 'RC_std', 'Reported_Rank_of_True_Winner(PF)', 
-        									 'PF_std', 'True_Rank_of_Reported_Winner(CT)', 'CT_std', 'Experiment'])
+        # df = pd.DataFrame(log_data, columns=['Budget', 'Recovery_Counts', 'RC_std', 'Reported_Rank_of_True_Winner(PF)', 
+        # 									 'PF_std', 'True_Rank_of_Reported_Winner(CT)', 'CT_std', 'Experiment'])
 
-        if(not args.no_save):
-            df.to_csv(os.path.join(args.save_dir, exp+".csv"), index=False)
+        # if(not args.no_save):
+        #     df.to_csv(os.path.join(args.save_dir, exp+".csv"), index=False)
 
-        print_metric("Recovery_Counts", RC)
-        print_metric("Reported_Rank_of_True_Winner", PF)
-        print_metric("True_Rank_of_Reported_Winner", CT)
+        # print_metric("Recovery_Counts", RC)
+        # print_metric("Reported_Rank_of_True_Winner", PF)
+        # print_metric("True_Rank_of_Reported_Winner", CT)
