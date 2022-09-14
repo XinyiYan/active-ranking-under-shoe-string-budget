@@ -652,7 +652,7 @@ if __name__ == "__main__":
                                                                                        precomputed=args.precomputed, dataset=args.dataset,
                                                                                        compute=args.compute, pref_matrix=args.pref_matrix)
 
-        exp = f"synthetic_N_{N}" + "_" + args.name
+        exp = f"{args.pref_matrix}_N_{N}" + "_" + args.name
 
         log_data = {'Budget' : [N*b for b in range(1, args.budget+1)],
         			'Recovery_Counts' : np.mean(RC, axis=1),
