@@ -83,7 +83,7 @@ def reset(n, scores, initialization="heuristic"):
         p = 1
         q = 2
         for i in range(initial):
-            if(Vote(scores[p-1], scores[q-1])):
+            if(random.random() <= scores[p-1][q-1]):
                 data.append((p,q))
                 comp_matrix[p][q] += 1
             else:
@@ -438,13 +438,18 @@ def run_simulation_custom(n, toppers, experiments, iterations, budget, recovery_
     return ranking, ranks, data, scores, true_top, estimates, recovery_count, performance_factor
 
 def run_simulation(n, experiments, iterations, budget, recovery_count, performance_factor, current_top,
-                   precomputed=True, dataset=None, compute="exact"):
+                   precomputed=True, dataset=None, compute="exact", pref_matrix=None):
     """
     Simulation of the algorithm for the synthetic and real-world dataset cases.
     """
     aux_bgt = int(budget/int(budget/(n)))
-    scores, true_top = init(n, precomputed=precomputed, dataset=dataset)
-    true_ranks = get_ranks(scores)
+
+    scores, true_top = init(n, precomputed=precomputed,
+                            dataset=dataset, pref_matrix=pref_matrix)
+    print("scores.shape:", scores.shape, "true_top:", true_top)
+    
+    # true_ranks = get_ranks(scores)
+
     for exp in tqdm.tqdm(range(experiments), desc="experiments"):
         for itr in tqdm.tqdm(range(iterations), desc="iterations"):
             data, initial, comp_matrix, chain, A_hash, estimates = reset(n, scores)
@@ -453,7 +458,7 @@ def run_simulation(n, experiments, iterations, budget, recovery_count, performan
                 for i in range(initial, aux_bgt):
                     # (p,q) = pick_a_pair(n, comp_matrix, estimates, top, chain, A_hash, ranking)
                     (p,q) = pick_a_pair(n, comp_matrix, estimates, chain, A_hash, ranking, ranks, top, compute=compute)
-                    if(Vote(scores[p-1], scores[q-1])):
+                    if(random.random() <= scores[p-1][q-1]):
                         data.append((p,q))
                         # comp_matrix[p][q] += 1
                         m, pi, new_chain, IP_hash = IMC_update(n, comp_matrix, (p,q), True, estimates, chain, A_hash, estimates)
@@ -472,13 +477,14 @@ def run_simulation(n, experiments, iterations, budget, recovery_count, performan
                 ranking, ranks, top = get_ranking(n, estimates)
                 initial = 0
                 # Update the metrics
-                if(true_top == (top-1)):
+                # if(true_top == (top-1)):
+                if((top-1) in true_top):
                     recovery_count[batch][exp] += 1
-                performance_factor[batch][exp] += ranks[true_top]
-                current_top[batch][exp] += true_ranks[top-1]
+                # performance_factor[batch][exp] += ranks[true_top]
+                # current_top[batch][exp] += true_ranks[top-1]
 
-    performance_factor /= iterations
-    current_top /= iterations
+    # performance_factor /= iterations
+    # current_top /= iterations
 
     return ranking, ranks, data, scores, true_top, estimates, recovery_count, performance_factor, current_top
 
@@ -575,6 +581,10 @@ if __name__ == "__main__":
         print(f"Running {Experiments} experiments of {Iterations} iterations each with N = {N}\n topper has score 100 and the rest have scores\n uniformly at random in 0 to 75.\n")
         if args.precomputed:
         	print("This score vector has been precomputed and stored for reproducibility.\n")
+            
+            
+        if args.pref_matrix:
+            print(f"pref_matrix:{args.pref_matrix}\n")
 
         RC = np.zeros((int(Budget/(N)), Experiments))
         PF = np.zeros((int(Budget/(N)), Experiments))
@@ -582,7 +592,7 @@ if __name__ == "__main__":
 
         Ranking, Ranks, Data, Scores, True_top, Estimates, RC, PF, CT = run_simulation(N, Experiments, Iterations, Budget, RC, PF, CT,
                                                                                        precomputed=args.precomputed, dataset=args.dataset,
-                                                                                       compute=args.compute)
+                                                                                       compute=args.compute, pref_matrix=args.pref_matrix)
 
         exp = f"synthetic_N_{N}" + "_" + args.name
 
